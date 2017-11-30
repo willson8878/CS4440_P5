@@ -30,23 +30,23 @@ var xAxisG = chartG.append('g')
 
 var yAxisG = chartG.append('g')
                     .attr('class', 'y axis')
-                    .attr('transform', 'translate(50, 50)');
+                    .attr('transform', 'translate(950, 50)');
 
 var transitionScale = d3.transition()
                         .duration(600)
                         .ease(d3.easeLinear);
 
-d3.csv('./05_final_project/colleges.csv', 
+d3.csv('./data/colleges.csv', 
     function(error, dataset) {
         if(error) {
-            console.error('Error while loading ./letter_freq.csv dataset.');
+            console.error('Error while loading ./colleges.csv dataset.');
             console.error(error);
             return;
         } 
 
     data = dataset;
     // x-axis
-    xScale = d3.scaleLinear().range([0, 800]);
+    xScale = d3.scaleLinear().range([900, 1400]);
     yScale = d3.scaleLinear().range([500, 0]);
 
     updateChart('Admission Rate','Admission Rate');
