@@ -7,26 +7,75 @@
     <link rel="stylesheet" href="./css/dot.css">
 </head>
 
-<body>
+<body> 
+    <button id ="Highest_Degree" style="position: absolute; top: 20px;margin-left: 20px;">Highest Degree</button> 
+    <button id ="Control" style="position: absolute; top: 50px;margin-left: 20px;">Public/Private</button>
+    <button id ="Region" style="position: absolute; top: 80px;margin-left: 20px;">Region</button>
+             
     <div id="main">
-        <svg width=1800 height=1200 font-family="sans-serif" style="border: 1px solid #777" font-size="10" text-anchor="middle"></svg>
-        <div style="position: absolute; top: 50px; margin-left: 720px;">
-            <div>
-                <label for="categorySelect">Y Scale:</label>
-            </div>
+        <svg width=1800 height=1000 font-family="sans-serif" style="border: 1px solid #777" font-size="10" text-anchor="middle"></svg>
+        
+        <div style="position: absolute; top: 0px; margin-left: 950px;">
+
             <select class="custom-select" id="ySelect" onchange="onCategoryChanged()">
                     <option selected value="Admission Rate">Admission Rate</option>
                     <option value="ACT Median">ACT Median</option>
                     <option value="UndergradPopulation">Undergrad Population</option>
+                    <option value="SAT Average">SAT Average</option>
+                    <option value="Average Cost">Average Cost</option>
+                    <option value="Expenditure Per Student">Expenditure Per Student</option>
+                    <option value="Average Faculty Salary">Average Faculty Salary</option>
+                    <option value="% Full-time Faculty">% Full-time Faculty</option>
+                    <option value="% Undergrads with Pell Grant">% Undergrads with Pell Grant</option>
+                    <option value="Completion Rate 150% time">Completion Rate 150% time</option>
+                    <option value="Retention Rate">Retention Rate</option>
+                    <option value="% Undergrads 25+ y.o.">% Undergrads 25+ y.o.</option>
+                    <option value="3 Year Default Rate">3 Year Default Rate</option>
+                    <option value="Median Debt">Median Debt</option>
+                    <option value="Median Debt on Graduation">Median Debt on Graduation</option>
+                    <option value="Median Debt on Withdrawal">Median Debt on Withdrawal</option>
+                    <option value="Average Age of Entry">UAverage Age of Entry</option>
+                    <option value="Average Family Income">Average Family Income</option>
+                    <option value="Median Family Income">Median Family Income</option>
+                    <option value="Number of Unemployed 8 years after entry">Number of Unemployed 8 years after entry</option>
+                    <option value="Number of Employed 8 years after entry">Number of Employed 8 years after entry</option>
+                    <option value="Number of Unemployed 8 years after entry">Number of Unemployed 8 years after entry</option>
+                    <option value="Mean Earnings 8 years After Entry">Mean Earnings 8 years After Entry</option>
+                    <option value="Median Earnings 8 years After Entry">Median Earnings 8 years After Entry</option>
              </select>
+             <div>
+                    <label for="categorySelect">Y Scale:</label>
+                </div>
         </div>
-        <div style="position: absolute; top: 600px; margin-left: 1100px;">
-            <label for="categorySelect">X Scale:</label>
+        <div style="position: absolute; top: 580px; margin-left: 1050px;">
             <select class="custom-select" id="xSelect" onchange="onCategoryChanged()">
                     <option selected value="Admission Rate">Admission Rate</option>
                     <option value="ACT Median">ACT Median</option>
                     <option value="UndergradPopulation">Undergrad Population</option>
+                    <option value="SAT Average">SAT Average</option>
+                    <option value="Average Cost">Average Cost</option>
+                    <option value="Expenditure Per Student">Expenditure Per Student</option>
+                    <option value="Average Faculty Salary">Average Faculty Salary</option>
+                    <option value="% Full-time Faculty">% Full-time Faculty</option>
+                    <option value="% Undergrads with Pell Grant">% Undergrads with Pell Grant</option>
+                    <option value="Completion Rate 150% time">Completion Rate 150% time</option>
+                    <option value="Retention Rate">Retention Rate</option>
+                    <option value="% Undergrads 25+ y.o.">% Undergrads 25+ y.o.</option>
+                    <option value="3 Year Default Rate">3 Year Default Rate</option>
+                    <option value="Median Debt">Median Debt</option>
+                    <option value="Median Debt on Graduation">Median Debt on Graduation</option>
+                    <option value="Median Debt on Withdrawal">Median Debt on Withdrawal</option>
+                    <option value="Average Age of Entry">UAverage Age of Entry</option>
+                    <option value="Average Family Income">Average Family Income</option>
+                    <option value="Median Family Income">Median Family Income</option>
+                    <option value="Number of Unemployed 8 years after entry">Number of Unemployed 8 years after entry</option>
+                    <option value="Number of Employed 8 years after entry">Number of Employed 8 years after entry</option>
+                    <option value="Number of Unemployed 8 years after entry">Number of Unemployed 8 years after entry</option>
+                    <option value="Mean Earnings 8 years After Entry">Mean Earnings 8 years After Entry</option>
+                    <option value="Median Earnings 8 years After Entry">Median Earnings 8 years After Entry</option>
+                    
                 </select>
+                <label for="categorySelect">X Scale:</label>
         </div>
     </div>
 </body>
@@ -34,6 +83,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-collection.v1.min.js"></script>
+<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+<script src="https://d3js.org/d3-quadtree.v1.min.js"></script>
+<script src="https://d3js.org/d3-timer.v1.min.js"></script>
+<script src="https://d3js.org/d3-force.v1.min.js"></script>
 <script src="./main.js"></script>
 
 </html>

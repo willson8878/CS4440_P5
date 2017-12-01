@@ -3,14 +3,15 @@ var svg = d3.select('svg');
 width = +svg.attr("width"),
 height = +svg.attr("height");
 
-
+var colors = ['#5F0500', '#731900', '#913700', '#B95F00', '#CD7300','#E18700', '#F59B00', '#FFB914', '#FFCD28','#FFE13C', '#FFF550','#FFFFA0'];
 var format = d3.format(",d");
 
-var valueColors = ['#468269','#00fffe','#0000fe','#ff00fe', '#fffc00', '#ff0000', '#e18231'];
 
 var pack = d3.pack()
 .size([750, 750])
 .padding(1.5);
+
+var bubble = {width:750, height:750, padding:65};
 
 ///////////////////////////////////////   Bubble   ////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,11 +39,11 @@ var chartG = svg.append('g');
 
 var xAxisG = chartG.append('g')
                     .attr('class', 'x axis')
-                    .attr('transform', 'translate(50, 550)');
+                    .attr('transform', 'translate(150, 550)');
 
 var yAxisG = chartG.append('g')
                     .attr('class', 'y axis')
-                    .attr('transform', 'translate(950, 50)');
+                    .attr('transform', 'translate(1050, 50)');
 
 var transitionScale = d3.transition()
                         .duration(600)
@@ -53,95 +54,303 @@ var transitionScale = d3.transition()
 //////////////////////   Bubble   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-d3.csv("./data/colleges.csv", function(d) {
-    d.value = +d.UndergradPopulation;
-    d.local = d.Locale
-    if (d.value) return d;
-  }, function(error, classes) {
-    if (error) throw error;
-  
-    var root = d3.hierarchy({children: classes})
-        .sum(function(d) { return d.value; })
-        .sort(function(a, b) { return b.value - a.value; })
-        .each(function(d) {
-          if (name = d.data.Name) {
-            var name, i = name.lastIndexOf(".");
-            d.name = name;
-            d.package = name.slice(0, i);
-            d.class = name.slice(i + 1);
-          }
-        });
-  
+
+
+
+d3.csv('./data/colleges.csv', 
+function(error, classes) {
+    if(error) {
+        console.error('Error while loading ./colleges.csv dataset.');
+        console.error(error);
+        return;
+    } 
+
+    svg.selectAll('rect')
+        .data(colors)
+        .enter().append('rect')
+        .attr('y', function(d,i){
+            return  150 + i* 22;
+        })
+        .attr('x', 900)
+        .attr('height', 20)
+        .attr('width', 20)
+        .style('fill', function(d, i){
+            return colors[i];
+        })
+
+    svg.selectAll('text')
+        .data(colors)
+        .enter()
+        .append('text')
+        .attr('y', function(d,i){
+            return  160 + i* 22;
+        })
+        .attr('x', 960)
+        .text(function(d,i){
+            if (colors[i] === '#5F0500') return "Large City";
+            if (colors[i] === '#731900') return "Mid-size City";
+            if (colors[i] === '#913700') return "Small City";
+            if (colors[i] === '#B95F00') return "Large Suburb";
+            if (colors[i] === '#CD7300') return "Mid-size Suburb";
+            if (colors[i] === '#E18700') return "Small Suburb";
+            if (colors[i] === '#F59B00') return "Fringe Town";
+            if (colors[i] === '#FFB914') return "Remote Town";
+            if (colors[i] === '#FFCD28') return "Distant Town";
+            if (colors[i] === '#FFE13C') return "Fringe Rural";
+            if (colors[i] === '#FFF550') return "Remote Rural";
+            if (colors[i] === '#FFFFA0') return "Distant Rural";
+
+        })
+
+    // label for graph
+    svg.selectAll(".label")
+        .data(['A','B'])
+        .enter().append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr('y', '50')
+        .attr('x', function(d,i){
+            return 300 + (i * 460);
+        })
+        .text(function(d,i){
+            if (i == 0) return 'Private Universities';
+            if (i == 1) return 'Public Universities'; 
+        })
+        .style("font-size",  '25px')
+
+        
+
+
+    d3.select("#Highest_Degree").on('click', function(){
+
+        simulation
+        .force("forceX", d3.forceX(function(d){
+            if (d['Highest Degree'] === "3") return 205;
+            return 500;
+        }).strength(.5))
+        .force("forceY", d3.forceY(bubble.height/2 + bubble.padding + 20).strength(.25))
+        .force("charge", d3.forceManyBody())
+        .alphaTarget(.1)
+        .restart();
+
+        // clear label
+        svg.selectAll(".label").remove();
+        // label for graph
+        svg.selectAll(".label")    
+            .data(['A','B'])
+            .enter().append("g")
+            .attr("class", "label")
+            .append("text")
+            .attr('x', function(d,i){
+                if (i == 0) return '150';
+                if (i == 1) return '800'; 
+            })
+            .attr('y', function(d,i){
+                if (i == 0) return '200';
+                if (i == 1) return '40'; 
+            })
+            .text(function(d,i){
+                if (i == 0) return '3 Highest Degree';
+                if (i == 1) return '4 Highest Degree'; 
+            })
+            .style("font-size",  '25px')
+    })
+
+    d3.select("#Control").on('click', function(){
+        simulation
+        .force("forceX", d3.forceX(function(d){
+            if (d.Control === "Private") return 225;
+            return 500;
+        }).strength(.5))
+        .force("forceY", d3.forceY(bubble.height/2 + bubble.padding + 40).strength(.25))
+        .force("charge", d3.forceManyBody())
+        .alphaTarget(.1)
+        .restart();
+
+        // clear label
+        svg.selectAll(".label").remove();
+        // lable for graph
+        svg.selectAll(".label")
+            .data(['A','B'])
+            .enter().append("g")
+            .attr("class", "label")
+            .append("text")
+            .attr('y', '50')
+            .attr('x', function(d,i){
+                return 300 + (i * 460);
+            })
+            .text(function(d,i){
+                if (i == 0) return 'Private Universities';
+                if (i == 1) return 'Public Universities'; 
+            })
+            .style("font-size",  '25px')
+
+
+
+    })
+
+    d3.select("#Region").on('click', function(){
+        simulation
+        .force("forceX", d3.forceX(function(d){
+            if (d.Region === "Far West") return 225;
+            if (d.Region === "Great Lakes") return 450;
+            if (d.Region === "Great Plains") return 675;
+            if (d.Region === "Mid-Atlantic") return 225;
+            if (d.Region === "New England") return 450;
+            if (d.Region === "Outlying Areas") return 675;
+            if (d.Region === "Rocky Mountains") return 225;
+            if (d.Region === "Southeast") return 450;
+            if (d.Region === "Southwest") return 700;
+        }).strength(.6))
+        .force("forceY", d3.forceY(function(d){
+            if (d.Region === "Far West") return 225;
+            if (d.Region === "Great Lakes") return 225;
+            if (d.Region === "Great Plains") return 225;
+            if (d.Region === "Mid-Atlantic") return 450;
+            if (d.Region === "New England") return 450;
+            if (d.Region === "Outlying Areas") return 450;
+            if (d.Region === "Rocky Mountains") return 675;
+            if (d.Region === "Southeast") return 675;
+            if (d.Region === "Southwest") return 675;
+        }).strength(.6))
+        .force("charge", d3.forceManyBody())
+        .alphaTarget(.1)
+        .restart();
+
+        // clear label
+        svg.selectAll(".label").remove();
+
+        // lable for graph --initial
+        svg.selectAll(".label")
+        .data(['A','B','A','B','A','B','A','B','B'])
+        .enter().append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr('x', function(d,i){
+            if (i == 0) return '150';
+            if (i == 1) return '450'; 
+            if (i == 2) return '750';
+            if (i == 3) return '150'; 
+            if (i == 4) return '450';
+            if (i == 5) return '750'; 
+            if (i == 6) return '150';
+            if (i == 7) return '450'; 
+            if (i == 8) return '770'; 
+        })
+        .attr('y', function(d,i){
+            if (i == 0) return '300';
+            if (i == 1) return '330'; 
+            if (i == 2) return '330';
+            if (i == 3) return '650'; 
+            if (i == 4) return '565';
+            if (i == 5) return '550'; 
+            if (i == 6) return '875';
+            if (i == 7) return '955'; 
+            if (i == 8) return '890'; 
+        })
+        .text(function(d,i){
+            if (i == 0) return 'Far West';
+            if (i == 1) return 'Great Lakes'; 
+            if (i == 2) return 'Great Plains';
+            if (i == 3) return 'Mid-Atlantic'; 
+            if (i == 4) return 'New England';
+            if (i == 5) return 'Outlying Areas'; 
+            if (i == 6) return 'Rocky Mountains';
+            if (i == 7) return 'Southeast'; 
+            if (i == 8) return 'Southwest'; 
+        })
+        .style("font-size",  '25px')
+    })
+
+
+
+    var radius = d3.scaleSqrt()
+                    .domain(d3.extent(classes, function(d){return +d.UndergradPopulation}))
+                    .range([5,30]);
+
+    var forceX = d3.forceX(function(d){
+                            if (d.Control === "Private") return 225;
+                            return 500;
+                        }).strength(.5);
+    var forceY = d3.forceY(bubble.height/2 + bubble.padding + 20).strength(.25);
+
+
+    var simulation = d3.forceSimulation(classes)
+                        .force("forceX", forceX)
+                        .force("forceY", forceY)
+                        .force("collide", d3.forceCollide(function(d){
+                            return radius(d.UndergradPopulation)
+                        }))
+                        .force("charge", d3.forceManyBody());
+
     var node = svg.selectAll(".node")
-      .data(pack(root).leaves())
-      .enter().append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + d.x + "," + (d.y+65) + ")"; });
+                  .data(classes)
+                  .enter().append("g")
+                  .attr("class", "node")
+                  .append("circle")
+                  .attr("id", function(d) { return d.Name+'_cir'; })
+                  .attr("r", function(d){return radius(d.UndergradPopulation)})
+                  .style('opacity', 1)
+                  .style("fill", function(d) {
+                        if (d.Locale == "Large City") {
+                            return '#5F0500';
+                        } else if (d.Locale == "Mid-size City") {
+                            return '#731900';
+                        } else if (d.Locale == "Small City") {
+                            return '#913700';
+                        } else if (d.Locale == "Large Suburb") {
+                            return '#B95F00';
+                        } else if (d.Locale == "Mid-size Suburb") {
+                            return '#CD7300';
+                        } else if (d.Locale == "Small Suburb") {
+                            return '#E18700';
+                        } else if (d.Locale == "Fringe Town") {
+                            return '#F59B00';
+                        } else if (d.Locale == "Remote Town") {
+                            return '#FFB914';
+                        }else if (d.Locale == "Distant Town") {
+                            return '#FFCD28';
+                        } else if (d.Locale == "Fringe Rural") {
+                            return '#FFE13C';
+                        }else if (d.Locale == "Remote Rural") {
+                            return '#FFF550';
+                        }else if (d.Locale == "Distant Rural") {
+                            return '#FFFFA0';
+                        }
+                    })
+                    .attr("transform", "translate(0,0 )");
+
+                
 
               
-    node.append("circle")
-        .attr("id", function(d) { return d.name+'_cir'; })
-        .attr("r", function(d) { return d.r; })
-        .style('opacity', 1)
-        .style("fill", function(d) {
-            if (d.data.Locale == "Large City") {
-                return '#5F0500';
-            } else if (d.data.Locale == "Mid-size City") {
-                return '#731900';
-            } else if (d.data.Locale == "Small City") {
-                return '#913700';
-            } else if (d.data.Locale == "Large Suburb") {
-                return '#B95F00';
-            } else if (d.data.Locale == "Mid-size Suburb") {
-                return '#CD7300';
-            } else if (d.data.Locale == "Small Suburb") {
-                return '#E18700';
-            } else if (d.data.Locale == "Fringe Town") {
-                return '#F59B00';
-            } else if (d.data.Locale == "Remote Town") {
-                return '#FFB914';
-            }else if (d.data.Locale == "Distant Town") {
-                return '#FFCD28';
-            } else if (d.data.Locale == "Fringe Rural") {
-                return '#FFE13C';
-            }else if (d.data.Locale == "Remote Rural") {
-                return '#FFF550';
-            }else if (d.data.Locale == "Distant Rural") {
-                return '#FFFFA0';
-            }
-        });
 
+    
+    simulation.nodes(classes)
+            .on('tick', function(d) {
+                node.attr('cx', function(d){return d.x;})
+                    .attr('cy', function(d){return d.y;})
+            });
   
-    node.append("clipPath")
-        .attr("id", function(d) { return "clip-" + d.name; })
-        .append("use")
-        .attr("xlink:href", function(d) { return "#" + d.name; });
-  
-    // node.append("text")
-    //     .attr("dy", ".3em")
-    //     .style("text-anchor", "middle")
-    //     .text(function(d) { return d.name.substring(0, d.r / 3); });
+    node.append("text")
+        .attr("dy", ".3em")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d.Name.substring(0, d.r / 3); });
   
     node.append("title")
-        .text(function(d) { return d.name + "\n" + format(d.value); });
+        .text(function(d) { return d.Name + "\n" + "Undergrad Population: " +format(d.UndergradPopulation); });
 
     node.on('mouseover', function(d){ // Add hover start event binding
         
             // Select the hovered g.dot
             var hovered = d3.select(this);
 
-            hovered.select('circle')
-            .style('stroke-width', 3)
-            .style('stroke', '#58D68D');
+            hovered.style('stroke-width', 3)
+                    .style('stroke', '#58D68D');
 
-            var id = this.firstChild.getAttribute('id')
+            var id = this.id
             id = id.slice(0, (id.length-4));
 
-            
-
-            svg.selectAll('circle').style('opacity', 0.05);
-
-            console.log(document.getElementById(id+"_dot"));
+            svg.selectAll('circle').style('opacity', 0.1);
 
             document.getElementById(id+"_dot").setAttribute('r', 6);
             document.getElementById(id+"_dot").setAttribute('stroke-width', 2);
@@ -157,7 +366,7 @@ d3.csv("./data/colleges.csv", function(d) {
         .on('mouseout', function(d){ 
             var hovered = d3.select(this);
 
-            var id = this.firstChild.getAttribute('id')
+            var id = this.id
             id = id.slice(0, (id.length-4));
 
             document.getElementById(id+"_dot").setAttribute('r', 3);
@@ -165,9 +374,8 @@ d3.csv("./data/colleges.csv", function(d) {
 
             d3.selectAll('circle').style('opacity', 1);
             // document.getElementById(id+"_dot").r = 3;
-            hovered.select('circle')
-            .style('stroke-width', 0)
-            .style('stroke', 'none');
+            hovered.style('stroke-width', 0)
+                    .style('stroke', 'none');
 
         })
 
@@ -182,7 +390,7 @@ d3.csv("./data/colleges.csv", function(d) {
     xScale = d3.scaleLinear().range([900, 1400]);
     yScale = d3.scaleLinear().range([500, 0]);
 
-    updateChart('Admission Rate','Admission Rate');
+    updateChart('Admission Rate','ACT Median');
         
 });
 
@@ -229,12 +437,10 @@ function updateChart(x, y){
                                 var id = this.firstChild.getAttribute('id')
                                 id = id.slice(0, (id.length-4));
                                         
-                                svg.selectAll('circle').style('opacity', 0.05);
+                                svg.selectAll('circle').style('opacity', 0.1);
 
                                 document.getElementById(id+"_cir").setAttribute('stroke-width', 3);
                                 document.getElementById(id+"_cir").setAttribute('stroke', '#58D68D');
-
-
 
                     
                                 document.getElementById(id+"_dot").style.opacity = 1;
@@ -243,7 +449,7 @@ function updateChart(x, y){
                         })
                         .on('mouseout', function(d){ 
 
-                            d3.selectAll('.node').style('opacity', 1);
+                            d3.selectAll('circle').style('opacity', 1);
                             // Select the hovered g.dot
                             var hovered = d3.select(this);
                             // Remove the highlighting we did in mouseover
@@ -253,6 +459,9 @@ function updateChart(x, y){
                                 .attr('r', 3)
                                 .style('stroke-width', 0)
                                 .style('stroke', 'none');
+
+                            var id = this.firstChild.getAttribute('id')
+                            id = id.slice(0, (id.length-4));
 
                             document.getElementById(id+"_cir").setAttribute('stroke', null);
                                 
@@ -280,7 +489,7 @@ function updateChart(x, y){
             // Transform the group based on x and y property
             var tx = xScale(d[x]);
             var ty = yScale(d[y]);
-            return 'translate('+[tx+50, ty+50]+')';
+            return 'translate('+[tx+150, ty+50]+')';
         })
         .style("fill", function(d) {
             if (d.Locale == "Large City") {
