@@ -1,15 +1,15 @@
 var svg = d3.select('svg');
 
-
 width = +svg.attr("width"),
 height = +svg.attr("height");
+
 
 var format = d3.format(",d");
 
 var valueColors = ['#468269','#00fffe','#0000fe','#ff00fe', '#fffc00', '#ff0000', '#e18231'];
 
 var pack = d3.pack()
-.size([800, 800])
+.size([750, 750])
 .padding(1.5);
 
 ///////////////////////////////////////   Bubble   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,45 +76,102 @@ d3.csv("./data/colleges.csv", function(d) {
       .data(pack(root).leaves())
       .enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-  
+        .attr("transform", function(d) { return "translate(" + d.x + "," + (d.y+65) + ")"; });
+
+              
     node.append("circle")
-        .attr("id", function(d) { return d.name; })
+        .attr("id", function(d) { return d.name+'_cir'; })
         .attr("r", function(d) { return d.r; })
+        .style('opacity', 1)
         .style("fill", function(d) {
-            if (d.data.Locale == "Mid-size City") {
-                return valueColors[0];
-            } else if (d.data.Locale == "Remote Town") {
-                return valueColors[1];
-            } else if (d.data.Locale == "Large Suburb") {
-                return valueColors[2];
-            } else if (d.data.Locale == "Distant Town") {
-                return valueColors[3];
+            if (d.data.Locale == "Large City") {
+                return '#5F0500';
+            } else if (d.data.Locale == "Mid-size City") {
+                return '#731900';
             } else if (d.data.Locale == "Small City") {
-                return valueColors[4];
+                return '#913700';
+            } else if (d.data.Locale == "Large Suburb") {
+                return '#B95F00';
+            } else if (d.data.Locale == "Mid-size Suburb") {
+                return '#CD7300';
+            } else if (d.data.Locale == "Small Suburb") {
+                return '#E18700';
             } else if (d.data.Locale == "Fringe Town") {
-                return valueColors[5];
-            } else if (d.data.Locale == "Large City") {
-                return valueColors[6];
+                return '#F59B00';
+            } else if (d.data.Locale == "Remote Town") {
+                return '#FFB914';
+            }else if (d.data.Locale == "Distant Town") {
+                return '#FFCD28';
+            } else if (d.data.Locale == "Fringe Rural") {
+                return '#FFE13C';
+            }else if (d.data.Locale == "Remote Rural") {
+                return '#FFF550';
+            }else if (d.data.Locale == "Distant Rural") {
+                return '#FFFFA0';
             }
         });
+
   
     node.append("clipPath")
         .attr("id", function(d) { return "clip-" + d.name; })
-      .append("use")
+        .append("use")
         .attr("xlink:href", function(d) { return "#" + d.name; });
   
-    node.append("text")
-        .attr("dy", ".3em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return d.name.substring(0, d.r / 3); });
+    // node.append("text")
+    //     .attr("dy", ".3em")
+    //     .style("text-anchor", "middle")
+    //     .text(function(d) { return d.name.substring(0, d.r / 3); });
   
     node.append("title")
         .text(function(d) { return d.name + "\n" + format(d.value); });
 
+    node.on('mouseover', function(d){ // Add hover start event binding
+        
+            // Select the hovered g.dot
+            var hovered = d3.select(this);
 
+            hovered.select('circle')
+            .style('stroke-width', 3)
+            .style('stroke', '#58D68D');
 
+            var id = this.firstChild.getAttribute('id')
+            id = id.slice(0, (id.length-4));
 
+            
+
+            svg.selectAll('circle').style('opacity', 0.05);
+
+            console.log(document.getElementById(id+"_dot"));
+
+            document.getElementById(id+"_dot").setAttribute('r', 6);
+            document.getElementById(id+"_dot").setAttribute('stroke-width', 2);
+            document.getElementById(id+"_dot").setAttribute('stroke', '#58D68D');
+            
+
+            document.getElementById(id+"_dot").style.opacity = 1;
+            document.getElementById(id+"_cir").style.opacity = 1;
+
+            d3.select(this).style('opacity', 1);
+
+        })
+        .on('mouseout', function(d){ 
+            var hovered = d3.select(this);
+
+            var id = this.firstChild.getAttribute('id')
+            id = id.slice(0, (id.length-4));
+
+            document.getElementById(id+"_dot").setAttribute('r', 3);
+            document.getElementById(id+"_dot").setAttribute('stroke', null);
+
+            d3.selectAll('circle').style('opacity', 1);
+            // document.getElementById(id+"_dot").r = 3;
+            hovered.select('circle')
+            .style('stroke-width', 0)
+            .style('stroke', 'none');
+
+        })
+
+    
 
 /////////////////////////   Bubble   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,36 +206,61 @@ function updateChart(x, y){
 
     // Create and position scatterplot circles
     // User Enter, Update
-    var dots = chartG.selectAll('.dot')
+    var dots = chartG.selectAll('.node')
                         .data(data);
 
     var dotsEnter = dots.enter()
                         .append('g')
-                        .attr('class', 'dot')
+                        .attr('class', 'node')
                         .on('mouseover', function(d){ // Add hover start event binding
                             // Select the hovered g.dot
                             var hovered = d3.select(this);
+
+
                             // Show the text, otherwise hidden
                             hovered.select('text')
                                 .style('visibility', 'visible');
                             // Add stroke to circle to highlight it
                             hovered.select('circle')
+                                .attr('r', 6)
                                 .style('stroke-width', 2)
-                                .style('stroke', '#333');
+                                .style('stroke', '#58D68D');
+
+                                var id = this.firstChild.getAttribute('id')
+                                id = id.slice(0, (id.length-4));
+                                        
+                                svg.selectAll('circle').style('opacity', 0.05);
+
+                                document.getElementById(id+"_cir").setAttribute('stroke-width', 3);
+                                document.getElementById(id+"_cir").setAttribute('stroke', '#58D68D');
+
+
+
+                    
+                                document.getElementById(id+"_dot").style.opacity = 1;
+                                document.getElementById(id+"_cir").style.opacity = 1;
+                    
                         })
-                        .on('mouseout', function(d){ // Add hover end event binding
+                        .on('mouseout', function(d){ 
+
+                            d3.selectAll('.node').style('opacity', 1);
                             // Select the hovered g.dot
                             var hovered = d3.select(this);
                             // Remove the highlighting we did in mouseover
                             hovered.select('text')
                                 .style('visibility', 'hidden');
                             hovered.select('circle')
+                                .attr('r', 3)
                                 .style('stroke-width', 0)
                                 .style('stroke', 'none');
+
+                            document.getElementById(id+"_cir").setAttribute('stroke', null);
+                                
                         });
     // Append a circle to the ENTER selection
     dotsEnter.append('circle')
-            .attr('r', 2);
+            .attr('r', 3)
+            .attr("id", function(d) { return d.Name+'_dot'; });
 
     // Append a text to the ENTER selection
     dotsEnter.append('text')
@@ -189,7 +271,6 @@ function updateChart(x, y){
             .style('visibility', 'hidden')
             .style('fill', 'black');
 
-            console.log(x);
 
     // ENTER + UPDATE selections - bindings that happen on all updateChart calls
     dots.merge(dotsEnter)
@@ -201,22 +282,83 @@ function updateChart(x, y){
             var ty = yScale(d[y]);
             return 'translate('+[tx+50, ty+50]+')';
         })
-        .style('fill', function(d){
-            if(d.Region == 'Far West') return '#00D7D7';
-            if(d.Region == 'Great Lakes') return '#00AFAF';
-            if(d.Region == 'Great Plains') return '#0080FF';
-            if(d.Region == 'Mid-Atlantic') return '#2B00FF';
-            if(d.Region == 'New England') return '#0000AF';
-            if(d.Region == 'Outlying Areas') return '#8000FF';
-            if(d.Region == 'Rocky Mountains') return '#FF00FF';
-            if(d.Region == 'Southeast') return '#5D8896';
-            if(d.Region == 'Southwest') return '#ACC4E6';
+        .style("fill", function(d) {
+            if (d.Locale == "Large City") {
+                return '#5F0500';
+            } else if (d.Locale == "Mid-size City") {
+                return '#731900';
+            } else if (d.Locale == "Small City") {
+                return '#913700';
+            } else if (d.Locale == "Large Suburb") {
+                return '#B95F00';
+            } else if (d.Locale == "Mid-size Suburb") {
+                return '#CD7300';
+            } else if (d.Locale == "Small Suburb") {
+                return '#E18700';
+            } else if (d.Locale == "Fringe Town") {
+                return '#F59B00';
+            } else if (d.Locale == "Remote Town") {
+                return '#FFB914';
+            }else if (d.Locale == "Distant Town") {
+                return '#FFCD28';
+            } else if (d.Locale == "Fringe Rural") {
+                return '#FFE13C';
+            }else if (d.Locale == "Remote Rural") {
+                return '#FFF550';
+            }else if (d.Locale == "Distant Rural") {
+                return '#FFFFA0';
+            }
         });
+        
+        
 }
+
+svg.select('#University of Central Florida_cir').style('fill', 'green');
 ////////////////////// Dot  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////  Brush  ///////////////////////////////////////////////////////////////////////////////////
+
+function brushstart(cell) {
+    // cell is the SplomCell object
+
+    // Check if this g element is different than the previous brush
+    if(brushCell !== this) {
+
+        // Clear the old brush
+        brush.move(d3.select(brushCell), null);
 
 
+        // Save the state of this g element as having an active brush
+        brushCell = this;
+    }
+}
+
+function brushmove(cell) {
+    // cell is the SplomCell object
+
+    // Get the extent or bounding box of the brush event, this is a 2x2 array
+    var e = d3.event.selection;
+    if(e) {
+
+        // Select all .dot circles, and add the "hidden" class if the data for that circle
+        // lies outside of the brush-filter applied for this SplomCells x and y attributes
+        svg.selectAll(".node")
+            .classed("hidden", function(d){
+                return e[0][0] > xScale(d[cell.x]) || xScale(d[cell.x]) > e[1][0]
+                    || e[0][1] > yScale(d[cell.y]) || yScale(d[cell.y]) > e[1][1];
+            });
+    }
+}
+
+function brushend() {
+    // If there is no longer an extent or bounding box then the brush has been removed
+    if(!d3.event.selection) {
+        // Bring back all hidden .dot elements
+        svg.selectAll('.hidden').classed('hidden', false);
+
+        // Return the state of the active brushCell to be undefined
+        brushCell = undefined;
+    }
+}
 
 
