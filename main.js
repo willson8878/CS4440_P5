@@ -32,6 +32,22 @@ var toolTip = d3.tip()
     });
 svg.call(toolTip);
 
+var toolTip = d3.tip()
+    .attr("class", "toolTip")
+  	.style("display", "inline-block")
+    .offset([-12, 0])
+    .html(function(d) {
+    	 return d.Name + "\n" + "Undergrad Population: " + format(d.UndergradPopulation)
+        						+ "<br/>" + "White: " + d3.format(".1%")(d['% White'])
+        						+ "<br/>" + "Black: " + d3.format(".1%")(d['% Black'])
+        						+ "<br/>" + "Hispanic: " + d3.format(".1%")(d['% Hispanic'])
+        						+ "<br/>" + "Asian: " + d3.format(".1%")(d['% Asian'])
+        						+ "<br/>" + "American Indian: " + d3.format(".1%")(d['% American Indian'])
+        						+ "<br/>" + "Pacific Islander: " + d3.format(".1%")(d['% Pacific Islander'])
+        						+ "<br/>" + "Biracial: " + d3.format(".1%")(d['% Biracial'])
+    });
+svg.call(toolTip);
+
 var xDomain;
 var yDomain;
 
@@ -351,16 +367,8 @@ function(error, classes) {
         .style("text-anchor", "middle")
         .text(function(d) { return d.Name.substring(0, d.r / 3); });
   
-    node.append("title")
-        .text(function(d) { return d.Name + "\n" + "Undergrad Population: " + format(d.UndergradPopulation)
-        						+ "\n" + "White: " + d3.format(".1%")(d['% White'])
-        						+ "\n" + "Black: " + d3.format(".1%")(d['% Black'])
-        						+ "\n" + "Hispanic: " + d3.format(".1%")(d['% Hispanic'])
-        						+ "\n" + "Asian: " + d3.format(".1%")(d['% Asian'])
-        						+ "\n" + "American Indian: " + d3.format(".1%")(d['% American Indian'])
-        						+ "\n" + "Pacific Islander: " + d3.format(".1%")(d['% Pacific Islander'])
-        						+ "\n" + "Biracial: " + d3.format(".1%")(d['% Biracial']);});
-
+    node.on('mousemove', toolTip.show)
+    node.on('mouseleave', toolTip.hide)
     node.on('mouseover', function(d){ // Add hover start event binding
         
             // Select the hovered g.dot
