@@ -16,6 +16,21 @@ var bubble = {width:750, height:750, padding:65};
 ///////////////////////////////////////   Bubble   ////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// Dot  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+var toolTip = d3.tip()
+    .attr("class", "toolTip")
+  	.style("display", "inline-block")
+    .offset([-12, 0])
+    .html(function(d) {
+    	 return d.Name + "\n" + "Undergrad Population: " + format(d.UndergradPopulation)
+        						+ "<br/>" + "White: " + d3.format(".1%")(d['% White'])
+        						+ "<br/>" + "Black: " + d3.format(".1%")(d['% Black'])
+        						+ "<br/>" + "Hispanic: " + d3.format(".1%")(d['% Hispanic'])
+        						+ "<br/>" + "Asian: " + d3.format(".1%")(d['% Asian'])
+        						+ "<br/>" + "American Indian: " + d3.format(".1%")(d['% American Indian'])
+        						+ "<br/>" + "Pacific Islander: " + d3.format(".1%")(d['% Pacific Islander'])
+        						+ "<br/>" + "Biracial: " + d3.format(".1%")(d['% Biracial'])
+    });
+svg.call(toolTip);
 
 var xDomain;
 var yDomain;
@@ -337,7 +352,14 @@ function(error, classes) {
         .text(function(d) { return d.Name.substring(0, d.r / 3); });
   
     node.append("title")
-        .text(function(d) { return d.Name + "\n" + "Undergrad Population: " +format(d.UndergradPopulation); });
+        .text(function(d) { return d.Name + "\n" + "Undergrad Population: " + format(d.UndergradPopulation)
+        						+ "\n" + "White: " + d3.format(".1%")(d['% White'])
+        						+ "\n" + "Black: " + d3.format(".1%")(d['% Black'])
+        						+ "\n" + "Hispanic: " + d3.format(".1%")(d['% Hispanic'])
+        						+ "\n" + "Asian: " + d3.format(".1%")(d['% Asian'])
+        						+ "\n" + "American Indian: " + d3.format(".1%")(d['% American Indian'])
+        						+ "\n" + "Pacific Islander: " + d3.format(".1%")(d['% Pacific Islander'])
+        						+ "\n" + "Biracial: " + d3.format(".1%")(d['% Biracial']);});
 
     node.on('mouseover', function(d){ // Add hover start event binding
         
@@ -420,14 +442,14 @@ function updateChart(x, y){
     var dotsEnter = dots.enter()
                         .append('g')
                         .attr('class', 'node')
+                        .on('mousemove', toolTip.show)
+        				.on('mouseleave', toolTip.hide)
                         .on('mouseover', function(d){ // Add hover start event binding
                             // Select the hovered g.dot
                             var hovered = d3.select(this);
-
-
                             // Show the text, otherwise hidden
-                            hovered.select('text')
-                                .style('visibility', 'visible');
+                            //hovered.select('text')
+                            //    .style('visibility', 'visible');
                             // Add stroke to circle to highlight it
                             hovered.select('circle')
                                 .attr('r', 6)
